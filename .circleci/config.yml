@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 commands:
   execute_script:
     description: Runs a bash script located in the .circleci directory.
