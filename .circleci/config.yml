@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 commands:
   execute_script:
     description: Runs a bash script located in the .circleci directory.
@@ -66,3 +66,4 @@ jobs:
               docker login --username=$DOCKER_USER --password=$DOCKER_PASS 
               docker tag akeneo-app "akeneo/akeneo-app:${CIRCLE_SHA1}"
               docker push "akeneo/akeneo-app:${CIRCLE_SHA1}"
+
