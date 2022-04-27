@@ -1,4 +1,3 @@
-source ./variables.sh
 encrypt() {
 input_file=$1
     output_file=$2
