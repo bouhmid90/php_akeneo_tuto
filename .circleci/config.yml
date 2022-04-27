@@ -15,7 +15,7 @@ commands:
             cd .circleci
             chmod +x << parameters.script >>.sh
             ./<< parameters.script >>.sh
-set_env_vars:
+  set_env_vars:
     description: Runs the set-env-vars script using the execute_script command.
     steps:
       - execute_script:
