@@ -75,7 +75,7 @@ jobs:
         - /caches/akeneo-app.tar
     - deploy:
         name: Push application Docker image
-        command: "docker login --username=$DOCKER_USER --password=$DOCKER_PASS && docker tag akeneo-app akeneo/akeneo-app:${CIRCLE_SHA1} && docker push akeneo/akeneo-app:${CIRCLE_SHA1}"
+        command: "echo $DOCKER_USER && echo $DOCKER_PASS docker login --username=$DOCKER_USER --password=$DOCKER_PASS && docker tag akeneo-app akeneo/akeneo-app:${CIRCLE_SHA1} && docker push akeneo/akeneo-app:${CIRCLE_SHA1}"
 workflows:
   version: 2
   workflow:
