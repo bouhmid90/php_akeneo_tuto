@@ -26,16 +26,60 @@ commands:
           title: Set environment variables
           script: set-env-vars
 jobs:
-  test-setup-job:
-    executor: node-executor
+  build:
+    working_directory: /akeneo-app
+    docker:
+    - image: docker:17.05.0-ce-git
     steps:
-      - checkout
-      - set_env_vars
-      - execute_script:
-          title: Run the echo-secrets script for testing
-          script: echo-secrets
+    - checkout
+    - set_env_vars
+    - run:
+        name: Set environment variables
+        no_output_timeout: 20m
+        command: |
+          cd .circleci
+          chmod +x set-env-vars.sh
+          ./set-env-vars.sh
+    - setup_remote_docker:
+        version: 20.10.6
+
+    - run:
+        name: Install dependencies
+        command: |
+          apk add --no-cache \
+            py-pip=9.0.0-r1
+          pip install \
+            docker-compose==1.12.0 \
+    - restore_cache:
+        keys:
+        - v1-{{ .Branch }}
+        paths:
+        - /caches/akeneo-app.tar
+    - run:
+        name: Load Docker image layer cache
+        command: |
+          set +o pipefail
+          docker load -i /caches/akeneo-app.tar | true
+    - run:
+        name: Build application Docker image
+        command: |
+          docker build --cache-from=akeneo-app -t akeneo-app .
+    - run:
+        name: Save Docker image layer cache
+        command: |
+          mkdir -p /caches
+          docker save -o /caches/akeneo-app.tar akeneo-app
+    - save_cache:
+        key: v1-{{ .Branch }}-{{ epoch }}
+        paths:
+        - /caches/akeneo-app.tar
+    - deploy:
+        name: Push application Docker image
+        command: "echo $DOCKER_USER && echo $DOCKER_PASS docker login --username=$DOCKER_USER --password=$DOCKER_PASS && docker tag akeneo-app akeneo/akeneo-app:${CIRCLE_SHA1} && docker push akeneo/akeneo-app:${CIRCLE_SHA1}"
 workflows:
   version: 2
-  test-setup-workflow:
-  jobs:
-    - test-setup-job:
+  workflow:
+    jobs:
+    - build
+
+
