@@ -1,4 +1,26 @@
 version: 2
+commands:
+  execute_script:
+    description: Runs a bash script located in the .circleci directory.
+    parameters:
+      title:
+        type: string
+      script:
+        type: string
+    steps:
+      - run:
+          name: << parameters.title >>
+          no_output_timeout: 20m
+          command: |
+            cd .circleci
+            chmod +x << parameters.script >>.sh
+            ./<< parameters.script >>.sh
+set_env_vars:
+    description: Runs the set-env-vars script using the execute_script command.
+    steps:
+      - execute_script:
+          title: Set environment variables
+          script: set-env-vars
 jobs:
   build:
     working_directory: /akeneo-app
@@ -6,6 +28,7 @@ jobs:
       - image: docker:17.05.0-ce-git
     steps:
       - checkout
+      - set_env_vars
       - setup_remote_docker
       - run:
           name: Install dependencies
@@ -40,7 +63,6 @@ jobs:
       - deploy:
           name: Push application Docker image
           command: |
-              docker login 
-              docker tag akeneo-app
-              docker push 
-            fi
+              docker login --username=$DOCKER_USER --password=$DOCKER_PASS 
+              docker tag akeneo-app "akeneo/akeneo-app:${CIRCLE_SHA1}"
+              docker push "akeneo/akeneo-app:${CIRCLE_SHA1}"
