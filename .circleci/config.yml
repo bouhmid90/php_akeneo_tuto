@@ -34,16 +34,8 @@ jobs:
       - execute_script:
           title: Run the echo-secrets script for testing
           script: echo-secrets
-    branch_filters: &branch_filters
-      filters:
-        branches:
-          only:
-            - dev
-            - staging
-            - prod
-    workflows:
-      version: 2
-      test-setup-workflow:
-      jobs:
-        - test-setup-job:
-            <<: *branch_filters
+workflows:
+  version: 2
+  test-setup-workflow:
+  jobs:
+    - test-setup-job:
